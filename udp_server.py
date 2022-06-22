@@ -8,8 +8,9 @@ import time
 from datetime import datetime
 
 # host = "0.0.0.0"
-# host = '192.168.0.139'
-host = UDP_IP = '10.30.18.25'
+# host = '10.10.0.79'
+host = '192.168.0.210'
+# host = '10.30.18.46'
 port = 5000
 max_length = 65540
 # max_length = 65000
@@ -27,28 +28,31 @@ while True:
     try:
         data, address = sock.recvfrom(max_length)
         
-        if len(data) < 100:
+        if len(data) < 25:
             frame_info = pickle.loads(data)
 
             if frame_info:
                 nums_of_packs = frame_info["packs"]
-
+                # buffer_size = frame_info["buffer_size"]
+                # print("Number of packs:",nums_of_packs)
                 for i in range(nums_of_packs):
                     data, address = sock.recvfrom(max_length)
-
                     if i == 0:
                         buffer = data
+                    # elif i >= nums_of_packs -3:
+                    #     pass
                     else:
                         buffer += data
 
-                stime, address = sock.recvfrom(max_length)
+                # stime, address = sock.recvfrom(max_length)
+                stime, address = sock.recvfrom(26)
 
-                frame = np.frombuffer(buffer, dtype=np.uint8)
-                # frame = np.frombuffer(base64.b64decode(buffer), np.uint8)
+                # frame = np.frombuffer(buffer, dtype=np.uint8)
+                frame = np.frombuffer(base64.b64decode(buffer), np.uint8)
                 frame = frame.reshape(frame.shape[0], 1)
 
                 frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
-                frame = cv2.flip(frame, 1)
+                # frame = cv2.flip(frame, 1)
 
                 try:
                     stime2 = stime.decode('utf-8')
@@ -69,7 +73,9 @@ while True:
                     cv2.imshow("Stream", frame)
                     if cv2.waitKey(1) == 27:
                         break
+
+
     except Exception as e:
         print(e)
-                
+        pass
 print("goodbye")
